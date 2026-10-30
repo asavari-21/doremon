@@ -1,0 +1,21 @@
+# virtual environments
+venv/
+.venv/
+
+# python junk
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# downloaded data (re-created by data.py)
+data/
+
+# trained models (re-created by run_experiment.py)
+models/
+
+# experiment outputs (see note below)
+results/
+
+# secrets and OS files
+.env
+.DS_Store
