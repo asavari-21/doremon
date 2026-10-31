@@ -11,7 +11,7 @@ import numpy as np
 import config
 from backtest import run_backtest
 from baselines import buy_hold_equal
-from env import Episode, PortfolioEnv, softmax
+from env import Episode, PortfolioEnv, policy_to_target, softmax
 from features import compute_features
 from metrics import max_drawdown
 from simulator import DomainRandomizer, calibrate
@@ -48,6 +48,16 @@ Rm = rng.normal(0.0004, 0.012, (600, 6)) * np.array([0.6, 1, 1.4, 0.8, 1.8, 1.1]
 wmv = min_variance_monthly(Rm, 300)(300, None)
 check("min-variance baseline differs from equal weight and favours the low-vol stock",
       not np.allclose(wmv, equal_weight_monthly(Rm, 300)(300, None)) and wmv[0] == wmv[:-1].max())
+
+# 3c. smoothing: weights stay valid, move only part of the way, and k=1 gives the old behaviour
+wd = np.array([0.5, 0.3, 0.2, 0.0]); act = np.array([3.0, -3.0, 0.0, 0.0])
+t_ = policy_to_target(act, wd)
+check("smoothed target is a valid weight vector", abs(t_.sum() - 1) < 1e-9 and (t_ >= 0).all())
+check("smoothing moves only part of the way",
+      np.abs(t_ - wd).sum() < np.abs(softmax(act) - wd).sum())
+_k = config.POLICY_SMOOTHING; config.POLICY_SMOOTHING = 1.0
+check("smoothing = 1.0 reproduces plain softmax", np.allclose(policy_to_target(act, wd), softmax(act)))
+config.POLICY_SMOOTHING = _k
 
 # 4. simulator: nominal (strength 0) is deterministic in params; strength 1 varies
 calib = calibrate(rng.normal(0.0005, 0.012, (1500, 6)))

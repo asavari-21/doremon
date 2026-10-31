@@ -10,6 +10,10 @@ Add --synthetic to use fake data offline, --timesteps N to shorten/lengthen.
 import argparse
 import os
 
+# PPO with a small MLP is as fast or faster on CPU. Hide any GPU so PyTorch does not
+# print the "NVIDIA driver too old" warning. Set CUDA_VISIBLE_DEVICES yourself to override.
+os.environ.setdefault("CUDA_VISIBLE_DEVICES", "")
+
 import config
 from data import load_data
 from env import PortfolioEnv
@@ -34,7 +38,7 @@ def train_one(mode, seed, timesteps, strength, data, out_dir="models", n_envs=No
     ppo_kw = dict(config.PPO_KW)
     ppo_kw["n_steps"] = max(16, config.PPO_KW["n_steps"] * config.N_ENVS // n_envs)
     ppo_kw["batch_size"] = min(config.PPO_KW["batch_size"], ppo_kw["n_steps"] * n_envs)
-    model = PPO("MlpPolicy", venv, seed=seed, verbose=verbose,
+    model = PPO("MlpPolicy", venv, seed=seed, verbose=verbose, device="cpu",
                 policy_kwargs=dict(net_arch=dict(pi=config.NET_ARCH, vf=config.NET_ARCH)),
                 **ppo_kw)
     model.learn(total_timesteps=timesteps)

@@ -19,7 +19,7 @@ import config
 from backtest import run_backtest
 from baselines import BASELINES
 from data import load_data
-from env import softmax
+from env import policy_to_target
 from features import compute_features
 from metrics import summarize
 from sources import strategy_name
@@ -30,7 +30,7 @@ def rl_decide(model, F):
     def decide(t, w):
         obs = np.concatenate([F[t], w]).astype(np.float32)
         a, _ = model.predict(obs, deterministic=True)
-        return softmax(np.clip(a.astype(np.float64), -config.ACTION_CLIP, config.ACTION_CLIP))
+        return policy_to_target(a, w)          # same smoothing rule the agent trained under
     return decide
 
 
@@ -40,6 +40,8 @@ def main():
     ap.add_argument("--seeds", nargs="+", type=int, default=[0, 1, 2])
     ap.add_argument("--timesteps", type=int, default=config.TIMESTEPS)
     ap.add_argument("--dr-strength", type=float, default=1.0)
+    ap.add_argument("--dr-strengths", nargs="+", type=float, default=None,
+                    help="several DR strengths in one run, e.g. 0.5 1 2 (overrides --dr-strength)")
     ap.add_argument("--synthetic", action="store_true", help="fake data, offline test only")
     ap.add_argument("--quick", action="store_true", help="tiny run to check everything works")
     ap.add_argument("--retrain", action="store_true", help="ignore saved models")
@@ -75,17 +77,22 @@ def main():
 
     # --- RL agents ---
     from stable_baselines3 import PPO
+    strengths = a.dr_strengths or [a.dr_strength]
+    combos = []                       # (mode, strength); hist and sim have no strength
     for mode in a.modes:
+        for st in (strengths if mode in ("dr", "mixed") else strengths[:1]):
+            combos.append((mode, st))
+    for mode, st in combos:
         for seed in a.seeds:
-            path = model_path(mode, a.dr_strength, seed)
+            path = model_path(mode, st, seed)
             if a.retrain or not os.path.exists(path):
-                print(f"training {strategy_name(mode, a.dr_strength)} seed={seed} "
-                      f"({a.timesteps:,} steps) ...")
-                train_one(mode, seed, a.timesteps, a.dr_strength, d)
+                print(f"training {strategy_name(mode, st)} seed={seed} "
+                      f"({a.timesteps:,} steps) ...", flush=True)
+                train_one(mode, seed, a.timesteps, st, d)
             model = PPO.load(path, device="cpu")
             for period, (ts, te) in periods.items():
                 r, tu = run_backtest(R, ts, te, rl_decide(model, F))
-                record(strategy_name(mode, a.dr_strength), seed, period, r, tu, ts)
+                record(strategy_name(mode, st), seed, period, r, tu, ts)
 
     res = pd.DataFrame(rows)
     res.to_csv(os.path.join(a.out, "metrics_by_run.csv"), index=False)

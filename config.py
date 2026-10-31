@@ -39,6 +39,13 @@ RISK_AVERSION = 5.0          # reward = log growth - (gamma/2) * return^2
 REWARD_SCALE = 100.0
 ACTION_CLIP = 3.0            # actions are clipped, then softmax -> weights
 
+# Anti-churn settings. Without them the agent trades its whole book ~100x a year
+# and costs eat all of its gains. Both apply in training AND in evaluation.
+POLICY_SMOOTHING = 0.15      # each day the agent moves only this fraction of the way
+                             # toward the weights it asks for. 1.0 = old behaviour (no smoothing).
+TURNOVER_PENALTY = 0.01      # extra reward penalty per unit of turnover (a regulariser on top of
+                             # the real COST_RATE). 0.0 = old behaviour.
+
 # ---------------------------------------------------------------------------
 # PPO
 # ---------------------------------------------------------------------------

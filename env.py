@@ -29,6 +29,16 @@ def softmax(a: np.ndarray) -> np.ndarray:
     return e / e.sum()
 
 
+def policy_to_target(action, w_drift):
+    """Turn the agent's raw action into the weights actually traded to.
+    softmax(action) is what the agent asks for; we only move POLICY_SMOOTHING of the
+    way there each day. Used by BOTH training (env.step) and evaluation (run_experiment),
+    so the agent is judged under the same rules it was trained under."""
+    a = np.clip(np.asarray(action, dtype=np.float64), -config.ACTION_CLIP, config.ACTION_CLIP)
+    k = config.POLICY_SMOOTHING
+    return (1.0 - k) * w_drift + k * softmax(a)
+
+
 def portfolio_step(w_target, w_drift, r_assets, cost_rate, rf_daily):
     """One day of trading. Returns (net_return, new_drifted_weights, turnover, cost)."""
     n = len(r_assets)
@@ -66,9 +76,9 @@ class PortfolioEnv(gym.Env):
         return self._obs(), {}
 
     def step(self, action):
-        a = np.clip(np.asarray(action, dtype=np.float64), -config.ACTION_CLIP, config.ACTION_CLIP)
         net, self.w, turnover, _ = portfolio_step(
-            softmax(a), self.w, self.R[self.t + 1], self.cost_rate, self.rf_d)
-        reward = config.REWARD_SCALE * (np.log1p(net) - 0.5 * config.RISK_AVERSION * net ** 2)
+            policy_to_target(action, self.w), self.w, self.R[self.t + 1], self.cost_rate, self.rf_d)
+        reward = config.REWARD_SCALE * (np.log1p(net) - 0.5 * config.RISK_AVERSION * net ** 2
+                                        - config.TURNOVER_PENALTY * turnover)
         self.t += 1
         return self._obs(), float(reward), self.t >= self.t_last, False, {"net": net, "turnover": turnover}
