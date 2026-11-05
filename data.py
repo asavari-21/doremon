@@ -1,10 +1,3 @@
-"""
-Data loading. Real data comes from yfinance (needs internet) and is cached to
-data/prices.csv. `--synthetic` swaps in fake prices so you can test the whole
-pipeline offline -- synthetic results mean NOTHING about real markets.
-
-    python data.py            # download + cache real data, print a summary
-"""
 import os
 
 import numpy as np

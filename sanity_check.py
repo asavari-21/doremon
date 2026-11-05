@@ -1,9 +1,3 @@
-"""
-Known-answer checks. Run this FIRST; it needs no internet.
-
-    python sanity_check.py          # all checks (the RL one takes a few minutes)
-    python sanity_check.py --fast   # skip the PPO known-answer test
-"""
 import sys
 
 import numpy as np

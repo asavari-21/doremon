@@ -1,14 +1,3 @@
-"""
-End-to-end experiment: train PPO agents under different training regimes,
-evaluate them and simple baselines on the SAME held-out real data, and write
-a results table + wealth plot.
-
-    python run_experiment.py --quick --synthetic                     # offline smoke test
-    python run_experiment.py --modes hist dr --seeds 0 1 2           # real data
-    python run_experiment.py --modes hist sim dr --seeds 0 1 2 3 4   # fuller ablation
-
-Outputs (results/): metrics_by_run.csv, summary.csv, wealth_test.png
-"""
 import argparse
 import os
 

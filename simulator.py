@@ -1,18 +1,3 @@
-"""
-Domain-randomized market simulator.
-
-Calibrated to TRAINING returns only (mean, vol, correlation per asset), then
-every episode draws a fresh set of market parameters (see config.DR_SPEC) and
-simulates a 3-regime (calm / normal / stress) Markov-switching market with
-fat tails (Student-t), a randomly-signed AR(1) term (momentum or reversal),
-shifted/shrunk drifts, and randomized correlation and transaction costs.
-
-The point: the agent never sees the same market twice, so it can't memorise
-which stock did well or what volatility looked like in the training years.
-
-IMPORTANT LIMIT: this is a stylised simulator, not a true model of the NSE.
-DR only helps if the real market lies inside the range you randomize over.
-"""
 from dataclasses import dataclass
 
 import numpy as np

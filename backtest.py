@@ -1,4 +1,3 @@
-"""Backtest engine shared by RL policies and baselines (same costs, same timing)."""
 import numpy as np
 
 import config

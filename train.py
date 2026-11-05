@@ -1,12 +1,3 @@
-"""
-Train one PPO agent.
-
-    python train.py --mode dr --seed 0                 # domain randomization
-    python train.py --mode hist --seed 0               # train on real history only
-    python train.py --mode sim --seed 0                # calibrated sim, no randomization
-    python train.py --mode mixed --dr-strength 1 --seed 0
-Add --synthetic to use fake data offline, --timesteps N to shorten/lengthen.
-"""
 import argparse
 import os
 

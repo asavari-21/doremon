@@ -1,11 +1,3 @@
-"""
-Portfolio environment + the shared one-day portfolio dynamics.
-
-Action: N+1 numbers -> softmax -> long-only weights over N stocks + cash.
-Timing: at the close of day t the agent sees features up to day t, picks
-weights, and earns day t+1's return. Costs = cost_rate * one-way turnover of
-the stock positions. Reward = REWARD_SCALE * (log(1+net) - (gamma/2)*net^2).
-"""
 from dataclasses import dataclass
 
 import gymnasium as gym

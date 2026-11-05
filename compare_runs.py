@@ -1,16 +1,3 @@
-"""
-Statistical comparison of every PPO strategy against a reference strategy,
-using the PER-SEED results in results/metrics_by_run.csv (TEST period).
-
-    python compare_runs.py                       # reference = ppo_hist
-    python compare_runs.py --ref ppo_sim         # compare against the no-randomization simulator
-    python compare_runs.py --period val
-
-For each metric it prints: mean difference, Welch t-test p-value and
-Mann-Whitney p-value. With many metrics and strategies, a few p < 0.05 will
-appear by chance -- the last column flags only results that survive a
-Holm correction across everything shown. Treat the rest as hints.
-"""
 import argparse
 
 import numpy as np

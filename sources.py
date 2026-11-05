@@ -1,4 +1,3 @@
-"""Where training episodes come from. Each source has sample(rng) -> Episode."""
 import numpy as np
 
 import config

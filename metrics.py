@@ -1,4 +1,3 @@
-"""Performance metrics from a series of daily NET returns (after costs)."""
 import numpy as np
 import pandas as pd
 

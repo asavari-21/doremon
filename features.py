@@ -1,12 +1,3 @@
-"""
-Features computed from daily simple returns. Feature row t uses returns up to
-and including day t only (no look-ahead). Each asset gets 4 features:
-  z1  : today's log return / 63-day vol
-  z5  : 5-day return, vol-scaled
-  z21 : 21-day return (momentum), vol-scaled
-  vr  : log(21-day vol / 63-day vol)  (is volatility rising or falling?)
-plus 2 market-wide averages (mean z21, mean vr).  Dimension = 4*N + 2.
-"""
 import numpy as np
 
 import config

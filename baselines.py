@@ -1,4 +1,3 @@
-"""Simple baselines every RL result must be compared against."""
 import numpy as np
 from scipy.optimize import minimize
 
